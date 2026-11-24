@@ -1,11 +1,12 @@
 // ============================================================
 //  OFICINA VIRTUAL 3D · TU CONFIGURACIÓN
 //  Cambia aquí el nombre, los departamentos, los colores y los agentes.
-//  Todo lo de este archivo son DATOS DE EJEMPLO (empresa ficticia).
+//  Todo lo de este archivo son DATOS DE EJEMPLO: no pongas datos reales
+//  de clientes, correos, teléfonos ni claves.
 // ============================================================
 window.OFICINA = {
   // Nombre que flota sobre el núcleo central y sale en la cabecera
-  empresa: 'Mi Empresa',
+  empresa: 'corestack_systemc',
   lema: 'Oficina virtual 3D',
   colorCentral: '#7c5ce6',
 
@@ -25,39 +26,36 @@ window.OFICINA = {
     {
       id: 'ventas',
       nombre: 'Ventas',
-      color: '#3f7be0',
-      responsable: { nombre: 'Responsable de ventas', tareas: ['Reparte los contactos del día', 'Revisa las propuestas del equipo', 'Mira el embudo de la semana'] },
+      color: '#7c5ce6',
+      zona: 'Equipo comercial',
+      responsable: { nombre: 'Responsable de ventas', tareas: ['Reparte las oportunidades del día', 'Revisa las propuestas del equipo', 'Lee el estado del embudo'] },
       agentes: [
-        { id: 'ventas-1', nombre: 'Agente de ventas', puesto: 'Propuestas', oficina: 'ventas',
-          tareas: ['Lee la ficha de un contacto nuevo', 'Escribe una propuesta a medida', 'Busca en internet: precios de la competencia'] },
-        { id: 'ventas-2', nombre: 'Agente de captación', puesto: 'Captación', oficina: 'captacion',
-          tareas: ['Busca en internet: negocios de la zona', 'Escribe el primer mensaje', 'Lee las respuestas de ayer'] },
+        { id: 'ventas-captacion', nombre: 'Agente de captación', puesto: 'Captación', oficina: 'captacion',
+          tareas: ['Busca en internet: empresas que encajen con el servicio', 'Lee las respuestas de los últimos contactos', 'Escribe el primer mensaje de contacto'] },
+        { id: 'ventas-propuestas', nombre: 'Agente de propuestas', puesto: 'Propuestas', oficina: 'ventas',
+          tareas: ['Lee la ficha de una oportunidad nueva', 'Escribe una propuesta a medida', 'Busca en internet: precios de referencia del sector'] },
       ],
     },
     {
       id: 'atencion',
       nombre: 'Atención al cliente',
-      color: '#2f9e6a',
+      color: '#2aa79b',
+      zona: 'Equipo de soporte',
       responsable: { nombre: 'Responsable de atención', tareas: ['Revisa las conversaciones abiertas', 'Escribe las respuestas tipo', 'Lee las valoraciones de la semana'] },
       agentes: [
-        { id: 'atencion-1', nombre: 'Agente de soporte', puesto: 'Soporte', oficina: 'atencion',
+        { id: 'atencion-respuestas', nombre: 'Agente de respuestas', puesto: 'Respuestas', oficina: 'atencion',
           tareas: ['Lee el mensaje de un cliente', 'Escribe la respuesta', 'Busca en internet: solución a una incidencia'] },
-        { id: 'atencion-2', nombre: 'Agente de seguimiento', puesto: 'Seguimiento', oficina: 'entrega',
-          tareas: ['Lee el estado de un pedido', 'Escribe el aviso de envío', 'Escribe la encuesta de satisfacción'] },
       ],
     },
     {
       id: 'contenido',
       nombre: 'Contenido',
-      color: '#d98a2b',
-      responsable: { nombre: 'Responsable de contenido', tareas: ['Planifica el calendario', 'Revisa los textos del equipo', 'Lee los números de las redes'] },
+      color: '#e0609a',
+      zona: 'Equipo editorial',
+      responsable: { nombre: 'Responsable de contenido', tareas: ['Planifica el calendario editorial', 'Revisa los textos del equipo', 'Lee los resultados de las publicaciones'] },
       agentes: [
-        { id: 'contenido-1', nombre: 'Agente de redes', puesto: 'Redes sociales', oficina: 'contenido',
-          tareas: ['Busca en internet: tendencias de la semana', 'Escribe el guion de un vídeo', 'Escribe los textos de las publicaciones'] },
-        { id: 'contenido-2', nombre: 'Agente de blog', puesto: 'Blog y web', oficina: 'investigacion',
-          tareas: ['Lee las preguntas de los clientes', 'Busca en internet: palabras clave', 'Escribe un artículo del blog'] },
-        { id: 'contenido-3', nombre: 'Agente de diseño', puesto: 'Diseño', oficina: 'pizarra', dibujo: 'wireframe',
-          tareas: ['Escribe las ideas de portada', 'Lee la guía de marca', 'Escribe los textos del anuncio'] },
+        { id: 'contenido-redes', nombre: 'Agente de redes', puesto: 'Redes sociales', oficina: 'contenido',
+          tareas: ['Busca en internet: tendencias de la semana', 'Escribe el guion de una publicación', 'Escribe los textos de las redes'] },
       ],
     },
   ],
