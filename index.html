@@ -40,6 +40,20 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1
 button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 #ayuda{position:absolute;left:16px;bottom:12px;max-width:calc(100% - 32px);font:12px var(--sans);color:#4b5568;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:6px}
 #actividad{position:absolute;right:12px;bottom:12px;width:300px;background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:0 6px 18px rgba(20,30,60,.12);font-size:12px}
+#contacto{position:absolute;right:12px;top:12px;width:300px;max-width:calc(100% - 24px);background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 10px 30px rgba(20,30,60,.2);display:none;z-index:6;flex-direction:column;gap:8px;font-size:13px}
+#contacto[open]{display:flex}
+#contacto .cerrar{position:absolute;right:8px;top:6px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
+#contacto h2{margin:0 0 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#contacto label{display:flex;flex-direction:column;gap:4px;font:600 11px var(--sans);color:#1d2433}
+#contacto input,#contacto textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff}
+#contacto textarea{min-height:80px;resize:vertical}
+#contacto .fila{display:flex;gap:8px}
+#contacto .fila > div{flex:1}
+#contacto button.solicitar{margin-top:4px;align-self:flex-start;font:inherit;font-weight:600;padding:7px 14px;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+#contacto button.solicitar:disabled{opacity:.6;cursor:not-allowed}
+#contacto .mensaje{font-size:11px;min-height:14px}
+#contacto .ok{color:var(--ok)}#contacto .mal{color:#c44}
+@media (max-width:760px){#actividad{display:none}#ayuda{font-size:11px}#marcador span{padding:6px 9px;font-size:11px}}
 #actividad h2{margin:0 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
 #actividad ol{list-style:none;margin:0;padding:0;display:grid;gap:5px}
 #actividad li{display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:baseline}
@@ -64,12 +78,25 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   <div id="barra">
     <div id="cabecera"><i class="vivo"></i><b id="titulo">Oficina virtual 3D</b><a href="https://profitia.digital" target="_blank" rel="noopener">por Profitia</a></div>
     <div id="marcador" aria-live="polite"></div>
-    <nav id="vistas" aria-label="Ir a"><button data-v="general" aria-pressed="true">Vista general</button><button data-v="oficina" aria-pressed="false">Tu oficina</button><button id="caminar" aria-pressed="false" title="Recorrer la oficina a pie">Caminar</button></nav>
+    <nav id="vistas" aria-label="Ir a"><button data-v="general" aria-pressed="true">Vista general</button><button data-v="oficina" aria-pressed="false">Tu oficina</button><button id="caminar" aria-pressed="false" title="Recorrer la oficina a pie">Caminar</button><button id="contactoBtn" aria-pressed="false" title="Bandeja de mensajes">Contacto</button></nav>
   </div>
   <button id="avanza" hidden aria-label="Avanzar" style="position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;border:1px solid #dfe5ee;background:rgba(255,255,255,.92);font-size:24px;box-shadow:0 4px 14px rgba(20,30,60,.18);touch-action:none;z-index:5">▲</button>
   <div id="ayuda">Arrastra para girar · clic derecho o Shift para desplazarte · rueda para acercar · WASD para moverte · clic en un agente o edificio</div>
   <section id="actividad" aria-live="polite"><h2><span>Lo que pasa ahora</span><span>simulación</span></h2><ol id="lista"></ol></section>
   <div id="ficha" hidden role="dialog" aria-label="Ficha del agente"></div>
+  <div id="contacto" role="dialog" aria-modal="true" aria-label="Bandeja de mensajes">
+    <button class="cerrar" aria-label="Cerrar">×</button>
+    <h2>Mensajes de la oficina</h2>
+    <form id="formulario" novalidate>
+      <div class="fila">
+        <div><label>Nombre</label><input name="nombre" required maxlength="60" placeholder="Tu nombre"></div>
+        <div><label>Correo</label><input type="email" name="email" required maxlength="120" placeholder="tu@correo.com"></div>
+      </div>
+      <div><label>Mensaje</label><textarea name="mensaje" required maxlength="500" placeholder="¿En qué puedo ayudarte?"></textarea></div>
+      <button type="submit" class="solicitar">Enviar</button>
+      <p class="mensaje" id="estado"></p>
+    </form>
+  </div>
   <div id="cargando">Montando la oficina…</div>
 </div>
 <script src="oficina.config.js"></script>
@@ -91,6 +118,20 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   addEventListener('oficina:actividad', (e) => {
     contar();
     $('#lista').innerHTML = e.detail.slice(0, 6).map((a) => `<li><i style="background:${esc(a.color)}"></i><div><b>${esc(a.quien)}</b> <span>${esc(a.texto)}</span></div></li>`).join('');
+  });
+  const btn = $('#contactoBtn'), panel = $('#contacto'), form = $('#formulario'), estado = $('#estado');
+  btn.addEventListener('click', () => { panel.toggleAttribute('open'); btn.setAttribute('aria-pressed', panel.hasAttribute('open')); });
+  panel.querySelector('.cerrar').addEventListener('click', () => { panel.removeAttribute('open'); btn.setAttribute('aria-pressed', 'false'); });
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true; estado.textContent = 'Enviando…'; estado.className = 'mensaje';
+    const fd = new FormData(form);
+    try {
+      const r = await fetch('https://formspree.io/f/meagvdrv', { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
+      if (r.ok) { form.reset(); estado.textContent = 'Mensaje enviado.'; estado.className = 'mensaje ok'; setTimeout(() => panel.removeAttribute('open'), 1500); }
+      else { estado.textContent = 'No se pudo enviar. Intenta de nuevo.'; estado.className = 'mensaje mal'; }
+    } catch { estado.textContent = 'Error de conexión.'; estado.className = 'mensaje mal'; }
+    btn.disabled = false;
   });
   addEventListener('oficina:lista', () => $('#cargando').classList.add('fuera'));
   addEventListener('oficina:error', (e) => { $('#cargando').textContent = 'No se pudo montar la oficina: ' + e.detail; });
