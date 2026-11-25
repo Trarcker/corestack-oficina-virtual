@@ -87,7 +87,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   <div id="contacto" role="dialog" aria-modal="true" aria-label="Bandeja de mensajes">
     <button class="cerrar" aria-label="Cerrar">×</button>
     <h2>Mensajes de la oficina</h2>
-    <form id="formulario" novalidate>
+    <form id="formulario" method="POST" action="https://formspree.io/f/meagvdrv" novalidate>
       <div class="fila">
         <div><label>Nombre</label><input name="nombre" required maxlength="60" placeholder="Tu nombre"></div>
         <div><label>Correo</label><input type="email" name="email" required maxlength="120" placeholder="tu@correo.com"></div>
