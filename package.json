@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Oficina virtual en 3D con agentes que trabajan, se consultan y descansan. Web estática, sin servidor. Por Profitia.",
+  "description": "Centro de agentes en 3D de planta abierta con departamentos que trabajan, se consultan y descansan. Web estática, sin servidor. corestack_systemc.",
   "license": "MIT",
   "author": "Profitia (https://profitia.digital)",
   "engines": { "node": ">=18" },

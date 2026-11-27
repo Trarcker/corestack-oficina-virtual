@@ -1,5 +1,5 @@
 // OFICINA VIRTUAL 3D · por Profitia (https://profitia.digital)
-// Una oficina futurista en 3D: cada departamento es un edificio con un puesto por agente.
+// Oficina en 3D de planta abierta: cada departamento es una zona con un puesto por agente.
 // Los agentes (Xbot) trabajan en su mesa, consultan a compañeros, entregan a su responsable y descansan en la zona de ocio.
 // Todo sale de oficina.config.js (datos de ejemplo) y la actividad es una simulación: no hay servidor ni base de datos.
 // Muebles y ciudad: Kenney (CC0). Cámara libre: arrastrar gira, clic derecho/Shift desplaza, rueda acerca, WASD mueve.
@@ -165,7 +165,7 @@ function modelo(nombre, { ancho, alto, x = 0, y = 0, z = 0, rot = 0, padre = esc
 }
 
 // ---------- suelo, calles y plaza ----------
-const suelo = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), mat('#d9dee7', 0.9)); suelo.rotation.x = -Math.PI / 2; suelo.receiveShadow = true; escena.add(suelo);
+const suelo = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), mat('#cfd6e1', 0.9)); suelo.rotation.x = -Math.PI / 2; suelo.receiveShadow = true; escena.add(suelo);
 function losa(x, z, w, d, c, y = 0.01) { const p = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat(c, 0.95)); p.rotation.x = -Math.PI / 2; p.position.set(x, y, z); p.receiveShadow = true; escena.add(p); return p; }
 // EL SUELO: losas claras con rejilla y un círculo central
 const CAMPO = { x: 0, z: 6, w: 100, d: 88 };
@@ -207,11 +207,11 @@ const nucleo = new THREE.Mesh(new THREE.IcosahedronGeometry(1.0, 0), nucleoMat);
 const luzCentro = new THREE.PointLight(COLOR_CENTRO, 10, 16); luzCentro.position.y = 2.5; centro.add(luzCentro);
 const cCentro = new THREE.Sprite(new THREE.SpriteMaterial({ map: letrero(String(CFG.empresa || 'Mi Empresa').toUpperCase(), COLOR_CENTRO, 512, 96, '#2a2150', '#e6dcff', 44) })); cCentro.scale.set(3.4, 0.64, 1); cCentro.position.y = 4.0; centro.add(cCentro);
 
-const OF = { x: 0, z: 24 };
+const OF = { x: 0, z: 22 };
 const of = new THREE.Group(); of.position.set(OF.x, 0, OF.z); escena.add(of);
 caja(10, 0.3, 7, '#f7f8fa', 0, 0.15, 0, of, false);
-caja(10, 2.8, 0.25, '#ffffff', 0, 1.7, -3.4, of); caja(10, 0.12, 0.27, '#f0b43c', 0, 3.1, -3.4, of);
-const cOf = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: letrero('TU OFICINA', '#f0b43c', 512, 128) })); cOf.position.set(-2, 2.55, -3.26); of.add(cOf);
+caja(10, 1.5, 0.18, '#ffffff', 0, 1.05, -3.4, of); caja(10, 0.1, 0.2, '#f0b43c', 0, 1.85, -3.4, of);
+const cOf = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), new THREE.MeshBasicMaterial({ map: letrero('TU OFICINA', '#f0b43c', 512, 128) })); cOf.position.set(-2, 1.25, -3.3); of.add(cOf);
 const papeles = [], notas = [];
 const RECEP = { x: 0, z: 13 };
 function montarRecepcion() {
@@ -235,9 +235,9 @@ function montarOficina() {
   papeles.forEach((p, i) => (p.visible = i < 3)); notas.forEach((n, i) => (n.visible = i < 6));   // papeles y notas de ejemplo
 }
 
-// ---------- un edificio por departamento (oficina.config.js) ----------
+// ---------- una zona por departamento (oficina.config.js) ----------
 const COLOR = {}, TITULO = {}, SITIO = {};
-const HUECOS = [{ x: 0, z: -21 }, { x: -25, z: 7 }, { x: 25, z: 7 }, { x: -25, z: -21 }, { x: 25, z: -21 }];   // dónde va cada edificio (hasta 5)
+const HUECOS = [{ x: 0, z: -19 }, { x: -19, z: 4 }, { x: 19, z: 4 }, { x: -19, z: -19 }, { x: 19, z: -19 }];   // dónde va cada zona (hasta 5)
 (CFG.departamentos || []).slice(0, HUECOS.length).forEach((dp, i) => { COLOR[dp.id] = dp.color || '#7c5ce6'; TITULO[dp.id] = String(dp.nombre || dp.id).toUpperCase(); SITIO[dp.id] = HUECOS[i]; });
 const ESTADO = {
   funciona: ['En marcha', '#3fae6a'], a_medias: ['A medias', '#e0a12f'], no_existe: ['Por crear', '#9aa3b3'],
@@ -414,32 +414,30 @@ function montarEdificios(casa, d) {
   for (const emp of casa.empresas) {
     const id = emp.id, deps = emp.departamentos, s = SITIO[id]; if (!s) continue;
     const color = COLOR[id];
-    // zonas de 4 puestos como máximo (2 columnas × 2 filas); el edificio tiene un ancho mínimo para que quepa el frente
+    // zonas de 4 puestos como máximo (2 columnas × 2 filas); el ancho mínimo deja espacio para el frente
     const zonas = []; for (let k = 0; k < Math.max(1, deps.length); k += 4) zonas.push({ nombre: emp.zona || 'Equipo', color, lista: deps.slice(k, k + 4) });
     const zw = 2 * OF_W, filas = Math.max(...zonas.map((z) => Math.ceil(z.lista.length / 2)), 1);
     const anchoZonas = zonas.length * zw + (zonas.length - 1) * ZONA_HUECO;
-    const w = Math.max(anchoZonas + 1.4, 18), fondo = filas * OF_D + 0.6, dd = fondo + 7;
+    const w = Math.max(anchoZonas + 1.4, 14), fondo = filas * OF_D + 0.6, dd = fondo + 7;
     const g = new THREE.Group(); g.position.set(s.x, 0, s.z); escena.add(g);
     caja(w, 0.3, dd, '#eceff4', 0, 0.15, 0, g, false);
-    const pared = new THREE.MeshStandardMaterial({ color: '#e8f1fb', roughness: 0.06, metalness: 0.25, transparent: true, opacity: 0.3 });   // cristal
-    caja(w, 3.6, 0.3, pared, 0, 2.1, -dd / 2 + 0.15, g); caja(0.3, 1.2, dd, pared, -w / 2 + 0.15, 0.9, 0, g); caja(0.3, 1.2, dd, pared, w / 2 - 0.15, 0.9, 0, g);
-    { const luz = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 1.3, roughness: 0.3 });   // cantos de luz del color de la empresa
-      caja(w, 0.08, 0.34, luz, 0, 3.95, -dd / 2 + 0.15, g, false); caja(0.34, 0.06, dd, luz, -w / 2 + 0.15, 1.53, 0, g, false); caja(0.34, 0.06, dd, luz, w / 2 - 0.15, 1.53, 0, g, false);
-      caja(w, 0.05, 0.34, luz, 0, 0.33, -dd / 2 + 0.15, g, false); caja(0.34, 0.05, dd, luz, -w / 2 + 0.15, 0.33, 0, g, false); caja(0.34, 0.05, dd, luz, w / 2 - 0.15, 0.33, 0, g, false); }
-    const cart = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w - 4, 8), 0.72), new THREE.MeshBasicMaterial({ map: letrero(TITULO[id], color) })); cart.position.set(0, 3.42, -dd / 2 + 0.31); g.add(cart);
+    // zócalo bajo en la parte de atrás: separa la zona sin cerrarla
+    const fondoPared = new THREE.MeshStandardMaterial({ color: mezclar(color, '#ffffff', 0.9), roughness: 0.7 });
+    caja(w, 1.6, 0.18, fondoPared, 0, 1.1, -dd / 2 + 0.09, g);
+    { const luz = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 1.2, roughness: 0.3 });   // remate de color
+      caja(w, 0.1, 0.22, luz, 0, 1.92, -dd / 2 + 0.09, g, false);
+      caja(w, 0.06, 0.12, luz, 0, 0.33, dd / 2 - 0.06, g, false); }
+    const cart = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w - 4, 8), 0.72), new THREE.MeshBasicMaterial({ map: letrero(TITULO[id], color) })); cart.position.set(0, 0.95, -dd / 2 + 0.19); g.add(cart);
     const int = new THREE.Group(); int.position.y = 0.3; g.add(int);
-    // el nombre del departamento pintado en el suelo, delante de la entrada
-    { const ancho = Math.min(w - 3, 9), tx = letrero(TITULO[id], color, 1024, 128, 'rgba(0,0,0,0)', color, 70);
-      const suelo = new THREE.Mesh(new THREE.PlaneGeometry(ancho, ancho / 8), new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false }));
-      suelo.rotation.x = -Math.PI / 2; suelo.position.set(0, 0.035, dd / 2 + 1.9); suelo.renderOrder = 2; g.add(suelo); }
     const zClic = new THREE.Mesh(new THREE.BoxGeometry(w, 0.5, dd), new THREE.MeshBasicMaterial({ visible: false })); zClic.position.set(s.x, 0.25, s.z); zClic.userData = { tipo: 'edificio', empresa: id }; escena.add(zClic); clicables.push(zClic);
     EDIF[id] = { g, int, w, d: dd, x: s.x, z: s.z, puestos: {}, deps };
-    const vidrio = mat('#cfe6ff', 0.1, { transparent: true, opacity: 0.22, metalness: 0.2 });
     zonas.forEach((zona, zi) => {
       const x0 = -anchoZonas / 2 + zi * (zw + ZONA_HUECO), cx = x0 + zw / 2, z0 = -dd / 2 + 0.3;
-      const suelo = new THREE.Mesh(new THREE.PlaneGeometry(zw, fondo), mat(mezclar(zona.color, '#ffffff', 0.86), 1)); suelo.rotation.x = -Math.PI / 2; suelo.position.set(cx, 0.01, z0 + fondo / 2); suelo.receiveShadow = true; int.add(suelo);
+      const suelo = new THREE.Mesh(new THREE.PlaneGeometry(zw, fondo), mat(mezclar(zona.color, '#ffffff', 0.8), 1)); suelo.rotation.x = -Math.PI / 2; suelo.position.set(cx, 0.01, z0 + fondo / 2); suelo.receiveShadow = true; int.add(suelo);
       const raya = new THREE.Mesh(new THREE.PlaneGeometry(zw, 0.14), mat(zona.color, 1)); raya.rotation.x = -Math.PI / 2; raya.position.set(cx, 0.015, z0 + fondo); int.add(raya);
-      const rot = new THREE.Mesh(new THREE.PlaneGeometry(zw * 0.8, 0.5), new THREE.MeshBasicMaterial({ map: letrero(zona.nombre.toUpperCase(), zona.color, 1024, 128, '#ffffff', zona.color, 62) })); rot.position.set(cx, 2.55, -dd / 2 + 0.33); int.add(rot);   // cartel de la zona en la pared del fondo
+      // borde de color en todo el perímetro de la zona
+      caja(zw, 0.05, 0.1, zona.color, cx, 0.32, z0, int, false); caja(zw, 0.05, 0.1, zona.color, cx, 0.32, z0 + fondo, int, false);
+      caja(0.1, 0.05, fondo, zona.color, cx - zw / 2, 0.32, z0 + fondo / 2, int, false); caja(0.1, 0.05, fondo, zona.color, cx + zw / 2, 0.32, z0 + fondo / 2, int, false);
       zona.lista.forEach((dep, k) => {
         const lx = x0 + OF_W / 2 + (k % 2) * OF_W, lz = z0 + 1.55 + Math.floor(k / 2) * OF_D;
         const fantasma = dep.estado === 'no_existe';
@@ -476,25 +474,29 @@ function montarEdificios(casa, d) {
     EDIF[id].cafe = { x: s.x + w / 2 - 0.9, z: s.z + lz - 0.45, rot: Math.PI };
     EDIF[id].charla = { x: s.x, z: s.z + fz + 2.2 };
     EDIF[id].campo = { x: s.x, z: s.z + dd / 2 + 5 };
-    // tejado: se ve desde el aire y desaparece al acercarte
-    const matTejado = new THREE.MeshStandardMaterial({ color: '#f4f5f8', roughness: 0.8, transparent: true, opacity: 1 });
-    const matLogo = new THREE.MeshBasicMaterial({ map: letrero(TITULO[id], color, 1024, 160, '#ffffff', '#1d2433', 84), transparent: true, opacity: 1 });
-    const tejado = new THREE.Group(); tejado.position.set(s.x, 0, s.z); escena.add(tejado);
-    const losaT = new THREE.Mesh(new THREE.BoxGeometry(w + 0.4, 0.35, dd + 0.4), matTejado); losaT.position.y = 4.2; losaT.castShadow = true; tejado.add(losaT);
-    const bordeT = new THREE.Mesh(new THREE.BoxGeometry(w + 0.6, 0.12, dd + 0.6), new THREE.MeshStandardMaterial({ color, transparent: true, opacity: 1 })); bordeT.position.y = 4.4; tejado.add(bordeT);
-    const logo = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w - 2, 14), Math.min(w - 2, 14) * 0.156), matLogo); logo.rotation.x = -Math.PI / 2; logo.position.y = 4.39; tejado.add(logo);
-    EDIF[id].tejado = { grupo: tejado, mats: [matTejado, matLogo, bordeT.material] };
-    const tarjeta = document.createElement('div'); tarjeta.className = 'resumen'; capa.appendChild(tarjeta); EDIF[id].tarjeta = tarjeta;
+    EDIF[id] = { g, int, w, d: dd, x: s.x, z: s.z, puestos: {}, deps };
   }
 }
 
-function montarCiudad() {
-  const tipos = 'abcdefghijklmn'.split('').map((l) => 'building-' + l), altos = 'abcde'.split('').map((l) => 'building-skyscraper-' + l);
-  let n = 0;
-  const poner = (x, z, rot) => { const alto = n % 5 === 2; modelo(alto ? altos[n % altos.length] : tipos[(n * 7) % tipos.length], { ancho: alto ? 9 : 10, x, z, rot }); n++; };
-  for (let x = -60; x <= 60; x += 13) { poner(x, -64, 0); poner(x, 68, Math.PI); }
-  for (let z = -40; z <= 46; z += 13) { poner(-76, z, Math.PI / 2); poner(76, z, -Math.PI / 2); }
-  [[-52, -40], [52, -40], [-52, 42], [52, 42], [-14, 40], [14, 40], [-46, -6], [46, -6], [-18, -42], [18, -42], [0, 44]].forEach(([x, z], i) => arbol(x, z, 1 + (i % 3) * 0.2));
+function montarPlanta() {
+  // una sola losa compartida para que las zonas se lean como una oficina abierta
+  const base = new THREE.Mesh(new THREE.PlaneGeometry(72, 74), mat('#e9edf4', 0.95));
+  base.rotation.x = -Math.PI / 2; base.position.set(0, 0.02, -1); base.receiveShadow = true; escena.add(base);
+  // pasillos claros en cruz
+  losa(0, -4, 4, 42, '#f5f7fb', 0.035);
+  losa(0, 3, 42, 4, '#f5f7fb', 0.035);
+  // borde suave de la planta
+  for (const [x, z, w, d] of [[0, -38, 72, 0.25], [0, 36, 72, 0.25], [-36, -1, 0.25, 74], [36, -1, 0.25, 74]]) {
+    caja(w, 0.05, d, '#c8d2e2', x, 0.045, z, escena, false);
+  }
+  // vegetación en el centro para que la planta no quede vacía
+  for (const [x, z, s] of [[-7, 2, 1.1], [7, 2, 1.1], [-7, 10, 1.0], [7, 10, 1.0]]) modelo('pottedPlant', { alto: s, x, z });
+}
+
+function montarJardin() {
+  // unos árboles alrededor de la planta, sin ciudad ni edificios de fondo
+  [[-42, -34, 1.2], [42, -34, 1.3], [-42, 34, 1.1], [42, 34, 1.2], [-16, 42, 1.0], [16, 42, 1.1], [-38, 2, 1.0], [38, 2, 1.05]]
+    .forEach(([x, z, s]) => arbol(x, z, s));
 }
 
 // ---------- personas ----------
@@ -708,17 +710,13 @@ let montado = false, cargando = false;
 async function montar(d) {
   cargando = true;
   const M = ['desk', 'chairDesk', 'computerScreen', 'loungeSofa', 'tableCoffee', 'pottedPlant', 'kitchenCoffeeMachine', 'bookcaseOpen', 'bookcaseClosedWide', 'books', 'cardboardBoxClosed', 'cardboardBoxOpen', 'laptop', 'lampRoundFloor', 'tableRound', 'chair', 'chairCushion', 'speakerSmall', 'radio', 'sideTableDrawers', 'stoolBar', 'table', 'loungeChair', 'computerKeyboard', 'deskCorner', 'plantSmall1'];
-  const C = [...'abcdefghijklmn'.split('').map((l) => 'building-' + l), ...'abcde'.split('').map((l) => 'building-skyscraper-' + l)];
   const [casa] = await Promise.all([
     Promise.resolve(casaDesdeConfig()),
     new GLTFLoader().loadAsync('./modelos/personas/xbot.glb').then((g) => { XBOT = g; }).catch((e) => console.warn('personas', e)),
     ...M.map((m) => cargar(m, `/modelos/muebles/${m}.glb`).catch((e) => console.warn(m, e))),
-    ...C.map((m) => cargar(m, `/modelos/ciudad/${m}.glb`).catch((e) => console.warn(m, e))),
   ]);
-  montarEdificios(casa, d); montarCiudad(); montarOficina(); montarRecepcion();
+  montarPlanta(); montarEdificios(casa, d); montarJardin(); montarOficina(); montarRecepcion();
   for (const [id, e] of Object.entries(EDIF)) {   // ocio de los agentes: barra de chips (se recargan) y mesa de hologramas (juegan en pareja)
-    const rotulo = (txt, pt, y) => { if (!pt) return; const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: letrero(txt, COLOR[id], 512, 110, '#ffffff', COLOR[id], 50) })); sp.scale.set(2.3, 0.5, 1); sp.position.set(pt.x, y, pt.z); escena.add(sp); };
-    rotulo('BARRA DE CHIPS', e.cafe, 2.7); rotulo('HOLOJUEGOS', e.campo, 2.9);
     if (e.campo) { const base = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.85, 0.5, 32), mat('#f4f6f9', 0.25)); base.position.set(e.campo.x, 0.25, e.campo.z); base.castShadow = true; escena.add(base);
       const aro = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.035, 10, 48), new THREE.MeshStandardMaterial({ color: COLOR[id], emissive: COLOR[id], emissiveIntensity: 1.4 })); aro.rotation.x = Math.PI / 2; aro.position.set(e.campo.x, 0.52, e.campo.z); escena.add(aro); }
   }
@@ -887,7 +885,6 @@ function resumenes(d) {
     if (!e.tarjeta) continue;
     const dist = camara.position.distanceTo(tmp.set(e.x, 0, e.z));
     const aire = THREE.MathUtils.smoothstep(dist, 52, 66);          // 0 = dentro, 1 = desde el aire
-    e.tejado.grupo.visible = false;   // sin tejado: desde el aire se ve el interior
     v3.set(e.x, 9, e.z - e.d / 2).project(camara);
     const ver = !aPie && camara.position.y > 38 && v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;   // solo en la vista desde arriba
     e.tarjeta.style.display = ver ? '' : 'none'; if (!ver) continue;
@@ -911,7 +908,6 @@ function resumenes(d) {
   }
 }
 function etiquetas() {
-  resumenes(datos);
   const r = renderer.domElement.getBoundingClientRect();
   for (const pl of PLACAS) {
     v3.copy(pl.pos).project(camara);
@@ -927,18 +923,18 @@ function etiquetas() {
     gx.el.style.transform = `translate(${((v3.x + 1) / 2) * r.width}px, ${((1 - v3.y) / 2) * r.height}px) translate(-50%, -100%)`;
     const dist = camara.position.distanceTo(tmp.set(gx.x, 1, gx.z));
     gx.el.style.opacity = dist > 95 ? 0 : 1;
-    gx.bur.hidden = !gx.texto || dist > 85; if (gx.texto) gx.bur.textContent = gx.texto.length > 48 ? gx.texto.slice(0, 46) + '…' : gx.texto;
+    gx.bur.hidden = !gx.texto || dist > 26; if (gx.texto) gx.bur.textContent = gx.texto.length > 48 ? gx.texto.slice(0, 46) + '…' : gx.texto;
     gx.bur.className = 'bur' + (gx.gerente ? ' g' : '');
-    gx.nom.hidden = dist > 52 && !gx.texto;
+    gx.nom.hidden = dist > 34;
   }
 }
 
 // ---------- vistas y desplazamiento ----------
 const VISTAS = {
-  general: { pos: [0, 50, 80], obj: [0, 0, -4] },
-  oficina: { pos: [0, 13, 46], obj: [0, 1, 18] },
+  general: { pos: [0, 44, 72], obj: [0, 0, 1] },
+  oficina: { pos: [0, 11, 40], obj: [0, 1, 19] },
 };
-for (const [id, s] of Object.entries(SITIO)) VISTAS[id] = { pos: [s.x, 25, s.z + 35], obj: [s.x, 0, s.z] };
+for (const [id, s] of Object.entries(SITIO)) VISTAS[id] = { pos: [s.x, 17, s.z + 24], obj: [s.x, 0, s.z] };
 {   // un botón por departamento en la barra de vistas
   const nav = document.getElementById('vistas'), ref = nav?.querySelector('[data-v="oficina"]');
   for (const id of Object.keys(SITIO)) { const b = document.createElement('button'); b.dataset.v = id; b.setAttribute('aria-pressed', 'false'); b.textContent = (CFG.departamentos.find((x) => x.id === id)?.nombre) || id; nav?.insertBefore(b, ref); }

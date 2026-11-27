@@ -7,7 +7,7 @@
 window.OFICINA = {
   // Nombre que flota sobre el núcleo central y sale en la cabecera
   empresa: 'corestack_systemc',
-  lema: 'Oficina virtual 3D',
+  lema: 'Centro de agentes',
   colorCentral: '#7c5ce6',
 
   // Recepción, en el centro (pon `recepcion: false` para quitarla)
@@ -16,7 +16,7 @@ window.OFICINA = {
     tareas: ['Lee un mensaje nuevo y decide a quién pasarlo', 'Busca en internet: horario de un proveedor', 'Escribe la respuesta de bienvenida'],
   },
 
-  // Cada departamento es un edificio (máximo 5). Cada agente tiene su propia oficina dentro.
+  // Cada departamento es una zona abierta (máximo 5). Cada agente tiene su propio puesto dentro.
   // `oficina` decide cómo se amuebla su puesto. Tipos: ventas, captacion, atencion, contenido, investigacion,
   // desarrollo, entrega, finanzas, direccion, pizarra, servidores, seguridad, laboratorio, comunidad, academia,
   // analitica, formacion.

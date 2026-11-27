@@ -1,10 +1,10 @@
-# Oficina virtual 3D · por Profitia
+# Centro de agentes 3D · corestack_systemc
 
-Una **oficina futurista en 3D** donde tus agentes trabajan a la vista: cada departamento es un edificio de cristal con el color de tu marca, cada agente tiene su mesa, y los ves **trabajar, consultarse, entregar a su responsable, llevar recados y descansar** en la zona de ocio. Encima de cada uno flota el holograma de lo que está haciendo.
+Un **centro de agentes en 3D de planta abierta** donde ves trabajar a tus equipos: cada departamento es una zona con el color de tu marca, cada agente tiene su mesa, y los ves **trabajar, consultarse, entregar a su responsable y descansar** en la zona de ocio. Encima de cada uno flota el holograma de lo que está haciendo.
 
 Es una web **estática**: sin servidor, sin base de datos y sin claves. Se publica gratis en Vercel en unos minutos.
 
-> Hecho por [Profitia](https://profitia.digital) — IA para negocios. Si te sirve, deja una ⭐ en el repo.
+> Basado en la plantilla de [Profitia](https://profitia.digital) — IA para negocios. Si te sirve, deja una ⭐ en el repo.
 
 ![Captura de la oficina virtual](captura.png)
 
@@ -14,11 +14,11 @@ Es una web **estática**: sin servidor, sin base de datos y sin claves. Se publi
 
 | | |
 |---|---|
-| 🏢 **Un edificio por departamento** | Paredes de cristal, cantos de luz del color del departamento, rótulos, un puesto por agente y zona de reuniones. Hasta 5 departamentos. |
+| 🧩 **Una zona por departamento** | Plataforma abierta, zócalo bajo, borde del color del departamento, rótulos, un puesto por agente y zona de reuniones. Hasta 5 departamentos. |
 | 🤖 **Agentes animados** | Personajes con esqueleto y animación real (andar, estar de pie, sentarse, teclear). Traje oscuro con las juntas iluminadas del color de su departamento; el responsable va de blanco. Sin caras. |
 | 🪄 **Hologramas de tarea** | Mientras trabaja, sobre cada agente flota un holograma que cambia según la tarea (buscar en internet, leer, escribir) y su bocadillo dice qué hace. |
 | 🛋️ **Zona de ocio** | Sofás, «barra de chips» y mesa de holojuegos donde los agentes se juntan por parejas. |
-| 🪑 **17 tipos de oficina** | Ventas, captación, atención, contenido (con plató), desarrollo, servidores, laboratorio, finanzas… cada puesto se amuebla según su función. |
+| 🪑 **Puestos según su función** | Ventas, captación, atención, contenido (con plató), desarrollo, servidores, laboratorio, finanzas… cada puesto se amuebla según su función. |
 | 🚶 **Modo «Caminar»** | Recorre la oficina a pie, a la altura de los ojos (WASD o flechas; en móvil, botón ▲). |
 | 📋 **Ficha y actividad** | Clic en un agente para ver quién es y qué hace. Panel «Lo que pasa ahora» con la actividad en directo. |
 | 📱 **Funciona en todas partes** | Ordenador, tablet y móvil. |
@@ -64,7 +64,7 @@ Todo está en **`oficina.config.js`**:
 | `empresa`, `lema` | El nombre de la cabecera y el que flota sobre el núcleo central. |
 | `colorCentral` | Color del núcleo central y de los botones. |
 | `recepcion` | Nombre y tareas de la recepción (o `false` para quitarla). |
-| `departamentos[]` | Cada uno es un edificio: `id`, `nombre`, `color` y `zona` (rótulo de la pared). |
+| `departamentos[]` | Cada uno es una zona abierta: `id`, `nombre`, `color` y `zona` (rótulo del equipo). |
 | `departamentos[].responsable` | Nombre y tareas del responsable (o `false` si no tiene). |
 | `departamentos[].agentes[]` | `id`, `nombre`, `puesto`, `oficina` (tipo de mueble), `tareas` y, si quieres, `estado`: `'a_medias'` o `'no_existe'` (sale en obras). |
 
@@ -107,10 +107,10 @@ Revisa que la configuración cargue, que existan todos los modelos 3D que pide e
 ```
 ├── index.html              La página (cabecera, vistas, ficha y panel de actividad)
 ├── oficina.config.js       ← TU CONFIGURACIÓN
-├── oficina3d.js            El mundo 3D (three.js): edificios, oficinas, agentes y simulación
+├── oficina3d.js            El mundo 3D (three.js): planta, zonas, agentes y simulación
 ├── modelos/
 │   ├── muebles/            Muebles (Kenney Furniture Kit, CC0)
-│   ├── ciudad/             Edificios del fondo (Kenney City Kit Commercial, CC0)
+│   ├── ciudad/             Modelos de edificios de la plantilla original (no se usan en la planta abierta)
 │   └── personas/xbot.glb   Personaje animado (ejemplos de three.js)
 ├── vendor/                 three.js y sus complementos (MIT)
 ├── herramientas/           Servidor local y comprobador

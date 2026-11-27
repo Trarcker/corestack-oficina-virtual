@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Oficina virtual 3D · por Profitia</title>
+<title>Centro de agentes · corestack_systemc</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M16 3l11 6.5v13L16 29 5 22.5v-13z%27 fill=%27%237c5ce6%27/%3E%3C/svg%3E">
-<meta name="description" content="Una oficina futurista en 3D donde tus agentes trabajan, se consultan, entregan y descansan. Plantilla gratuita de Profitia.">
+<meta name="description" content="Centro de agentes de corestack_systemc: prospección, ventas, desarrollo, atención y contenido trabajando en una oficina 3D de planta abierta.">
 <style>
 :root{--bg:#eef2f8;--ink:#161c28;--muted:#5b6475;--line:#dfe5ee;--accent:#7c5ce6;--ok:#3fbf7f;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,Consolas,monospace}
@@ -39,7 +39,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:14px/1
 #vistas button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 #ayuda{position:absolute;left:16px;bottom:12px;max-width:calc(100% - 32px);font:12px var(--sans);color:#4b5568;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:6px}
-#actividad{position:absolute;right:12px;bottom:12px;width:300px;background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:0 6px 18px rgba(20,30,60,.12);font-size:12px}
+#actividad{display:none;position:absolute;right:12px;bottom:12px;width:300px;background:rgba(255,255,255,.93);border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:0 6px 18px rgba(20,30,60,.12);font-size:12px}
+#actividad.visible{display:block}
 #contacto{position:absolute;right:12px;top:12px;width:300px;max-width:calc(100% - 24px);background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 10px 30px rgba(20,30,60,.2);display:none;z-index:6;flex-direction:column;gap:8px;font-size:13px}
 #contacto[open]{display:flex}
 #contacto .cerrar{position:absolute;right:8px;top:6px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
@@ -76,12 +77,12 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   <div id="mundo" aria-label="Oficina virtual en 3D: cada departamento es un edificio y sus agentes trabajan dentro"></div>
   <div id="etiquetas"></div>
   <div id="barra">
-    <div id="cabecera"><i class="vivo"></i><b id="titulo">Oficina virtual 3D</b><a href="https://profitia.digital" target="_blank" rel="noopener">por Profitia</a></div>
+    <div id="cabecera"><i class="vivo"></i><b id="titulo">Centro de agentes</b><a href="https://github.com/Trarcker/corestack-oficina-virtual" target="_blank" rel="noopener">corestack_systemc</a></div>
     <div id="marcador" aria-live="polite"></div>
-    <nav id="vistas" aria-label="Ir a"><button data-v="general" aria-pressed="true">Vista general</button><button data-v="oficina" aria-pressed="false">Tu oficina</button><button id="caminar" aria-pressed="false" title="Recorrer la oficina a pie">Caminar</button><button id="contactoBtn" aria-pressed="false" title="Bandeja de mensajes">Contacto</button></nav>
+    <nav id="vistas" aria-label="Ir a"><button data-v="general" aria-pressed="true">Vista general</button><button data-v="oficina" aria-pressed="false">Tu oficina</button><button id="actividadBtn" aria-pressed="false" title="Ver lo que pasa ahora">Actividad</button><button id="contactoBtn" aria-pressed="false" title="Bandeja de mensajes">Contacto</button></nav>
   </div>
   <button id="avanza" hidden aria-label="Avanzar" style="position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;border:1px solid #dfe5ee;background:rgba(255,255,255,.92);font-size:24px;box-shadow:0 4px 14px rgba(20,30,60,.18);touch-action:none;z-index:5">▲</button>
-  <div id="ayuda">Arrastra para girar · clic derecho o Shift para desplazarte · rueda para acercar · WASD para moverte · clic en un agente o edificio</div>
+  <div id="ayuda">Arrastra para girar · rueda para acercar · clic en un agente o zona</div>
   <section id="actividad" aria-live="polite"><h2><span>Lo que pasa ahora</span><span>simulación</span></h2><ol id="lista"></ol></section>
   <div id="ficha" hidden role="dialog" aria-label="Ficha del agente"></div>
   <div id="contacto" role="dialog" aria-modal="true" aria-label="Bandeja de mensajes">
@@ -97,7 +98,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
       <p class="mensaje" id="estado"></p>
     </form>
   </div>
-  <div id="cargando">Montando la oficina…</div>
+  <div id="cargando">Preparando el centro de agentes…</div>
 </div>
 <script src="oficina.config.js"></script>
 <script>
@@ -107,7 +108,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   if (C.colorCentral) document.documentElement.style.setProperty('--accent', C.colorCentral);
   $('#titulo').textContent = `${C.empresa || 'Mi Empresa'} · ${C.lema || 'Oficina virtual 3D'}`;
-  document.title = `${C.empresa || 'Mi Empresa'} · Oficina virtual 3D · por Profitia`;
+  document.title = `${C.empresa || 'Mi Empresa'} · Centro de agentes`;
   const nAgentes = (C.departamentos || []).reduce((n, d) => n + (d.agentes || []).filter((a) => a.estado !== 'no_existe').length, 0);
   let trabajando = 0;
   function marcador() {
@@ -122,6 +123,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   const btn = $('#contactoBtn'), panel = $('#contacto'), form = $('#formulario'), estado = $('#estado');
   btn.addEventListener('click', () => { panel.toggleAttribute('open'); btn.setAttribute('aria-pressed', panel.hasAttribute('open')); });
   panel.querySelector('.cerrar').addEventListener('click', () => { panel.removeAttribute('open'); btn.setAttribute('aria-pressed', 'false'); });
+  const act = $('#actividad'), actBtn = $('#actividadBtn');
+  actBtn.addEventListener('click', () => { const on = act.classList.toggle('visible'); actBtn.setAttribute('aria-pressed', String(on)); });
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     btn.disabled = true; estado.textContent = 'Enviando…'; estado.className = 'mensaje';
