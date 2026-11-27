@@ -1,0 +1,6 @@
+# No publicar datos reales de clientes ni claves
+sistema-real-agentes
+.env
+.env.*
+*.log
+__pycache__

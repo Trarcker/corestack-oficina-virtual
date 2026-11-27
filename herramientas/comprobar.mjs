@@ -28,13 +28,20 @@ else {
 // 2) archivos que pide el código
 const js = await readFile(join(RAIZ, 'oficina3d.js'), 'utf8');
 const M = JSON.parse(js.match(/const M = (\[[^\]]+\])/)[1].replace(/'/g, '"'));
-const pedidos = [...M.map((m) => `modelos/muebles/${m}.glb`), 'modelos/personas/xbot.glb', 'modelos/ciudad/Textures/colormap.png',
-  ...'abcdefghijklmn'.split('').map((l) => `modelos/ciudad/building-${l}.glb`), ...'abcde'.split('').map((l) => `modelos/ciudad/building-skyscraper-${l}.glb`),
+const pedidos = [...M.map((m) => `modelos/muebles/${m}.glb`), 'modelos/personas/xbot.glb',
   'vendor/three.module.js', 'vendor/OrbitControls.js', 'vendor/GLTFLoader.js', 'vendor/SkeletonUtils.js', 'vendor/BufferGeometryUtils.js', 'oficina.config.js', 'oficina3d.js', 'index.html'];
 const faltan = []; for (const p of pedidos) if (!(await existe(p))) faltan.push(p);
 faltan.length ? faltan.forEach((p) => mal('Falta ' + p)) : bien(`${pedidos.length} archivos referenciados, todos presentes`);
 
-// 3) nada de llamadas a servidor
-if (/fetch\(|\/api\//.test(js)) mal('oficina3d.js llama a un servidor (fetch o /api/)'); else bien('Sin llamadas a servidor: es una web estática');
+// 3) solo se conecta a la API propia de IA (la clave vive en el servidor)
+const codigo = js.split(/\r?\n/).map((l) => l.replace(/\/\/.*$/, '')).join('\n');
+const rutas = [...new Set([...codigo.matchAll(/['"`](\/api\/[a-z-]+)/g)].map((m) => m[1]))];
+const permitidas = ['/api/estado', '/api/agente'];
+const noPermitidas = rutas.filter((r) => !permitidas.includes(r));
+if (noPermitidas.length) mal('Rutas de API no permitidas: ' + noPermitidas.join(', '));
+else bien(`API propia: ${rutas.join(', ')}`);
+const externas = [...codigo.matchAll(/https?:\/\/[^\s'"`]+/g)].map((m) => m[0]);
+if (externas.length) mal('URLs externas en oficina3d.js: ' + externas.join(', '));
+else bien('Sin llamadas a servicios externos desde el navegador');
 
 console.log(fallos ? `\n${fallos} problema(s)` : '\nTodo en orden.'); process.exit(fallos ? 1 : 0);

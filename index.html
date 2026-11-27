@@ -60,13 +60,20 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 #actividad li{display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:baseline}
 #actividad li i{width:8px;height:8px;border-radius:2px;display:inline-block}
 #actividad li b{font-weight:600}#actividad li span{color:var(--muted)}
-#ficha{position:absolute;right:12px;top:12px;width:300px;max-width:calc(100% - 24px);background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 10px 30px rgba(20,30,60,.2);display:grid;gap:6px;z-index:6}
+#ficha{position:absolute;right:12px;top:12px;width:300px;max-width:calc(100% - 24px);max-height:calc(100% - 24px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 10px 30px rgba(20,30,60,.2);display:grid;gap:6px;z-index:6}
 #ficha[hidden]{display:none}
 #ficha .cerrar{position:absolute;right:8px;top:6px;border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
 #ficha .dep{justify-self:start;color:#fff;font:700 10px var(--sans);letter-spacing:.06em;padding:2px 7px;border-radius:4px}
 #ficha b{font-size:16px}#ficha .puesto{color:var(--muted)}#ficha .estado{font-weight:600}
 #ficha .ahora{font:12px var(--mono);color:#a3640a}#ficha .sub{font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 #ficha ul{margin:0;padding-left:18px;color:#33405a}
+#ficha .ia{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:grid;gap:6px}
+#ficha .ia textarea{width:100%;min-height:58px;resize:vertical;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff}
+#ficha .ia button{justify-self:start;font:inherit;font-weight:600;padding:5px 12px;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+#ficha .ia button:disabled{opacity:.55;cursor:not-allowed}
+#ficha .ia .nota{font-size:10px;color:var(--muted);margin:0}
+#ficha .ia .respuesta{white-space:pre-wrap;background:#f6f7fb;border-radius:6px;padding:8px;font-size:12px;max-height:180px;overflow:auto}
+#ficha .ia .respuesta:empty{display:none}
 #cargando{position:absolute;inset:0;display:grid;place-items:center;background:var(--bg);z-index:10;font-weight:600;color:var(--muted);transition:opacity .6s}
 #cargando.fuera{opacity:0;pointer-events:none}
 @media (max-width:760px){#actividad{display:none}#ayuda{font-size:11px}#marcador span{padding:6px 9px;font-size:11px}}

@@ -9,6 +9,7 @@
   "engines": { "node": ">=18" },
   "scripts": {
     "dev": "node herramientas/servidor-local.mjs",
-    "check": "node herramientas/comprobar.mjs"
+    "check": "node herramientas/comprobar.mjs",
+    "probar-ia": "node herramientas/probar-ia.mjs"
   }
 }

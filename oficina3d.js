@@ -474,7 +474,6 @@ function montarEdificios(casa, d) {
     EDIF[id].cafe = { x: s.x + w / 2 - 0.9, z: s.z + lz - 0.45, rot: Math.PI };
     EDIF[id].charla = { x: s.x, z: s.z + fz + 2.2 };
     EDIF[id].campo = { x: s.x, z: s.z + dd / 2 + 5 };
-    EDIF[id] = { g, int, w, d: dd, x: s.x, z: s.z, puestos: {}, deps };
   }
 }
 
@@ -1000,9 +999,20 @@ function tocar(e) {
   ray.setFromCamera(ptr, camara);
   return ray.intersectObjects([...clicables, ...Object.values(gente).map((g) => g.p.root)], true).find((h) => h.object.userData?.tipo);
 }
-// Ficha de solo lectura: quién es, en qué departamento está y qué hace ahora.
+// Ficha: quién es, qué hace y una pregunta real a Gemini.
 const ficha = document.getElementById('ficha');
 const FASE = { trabaja: 'Trabajando en su mesa', consulta: 'Consultando a un compañero', entrega: 'Entregando su trabajo', recibe: 'Recibiendo un encargo', recado: 'Llevando un recado', ocio: 'En la zona de ocio' };
+let estadoIACache = null;
+async function consultarEstadoIA() {
+  if (estadoIACache) return estadoIACache;
+  try {
+    const r = await fetch('/api/estado');
+    estadoIACache = await r.json();
+  } catch {
+    estadoIACache = { configurado: false, modelo: 'sin conexión' };
+  }
+  return estadoIACache;
+}
 function verFicha(gx) {
   if (!ficha) return;
   const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1011,8 +1021,64 @@ function verFicha(gx) {
   ficha.innerHTML = `<button class="cerrar" aria-label="Cerrar">×</button><span class="dep" style="background:${col}">${esc(dep)}</span>
     <b>${esc(gx.a.nombre)}</b>${gx.a.puesto ? `<span class="puesto">${esc(gx.a.puesto)}</span>` : ''}
     <span class="estado">${esc(estado)}</span>${gx.texto ? `<span class="ahora">▶ ${esc(gx.texto)}</span>` : ''}
-    ${gx.a.tareas?.length ? `<span class="sub">Sus tareas</span><ul>${gx.a.tareas.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}`;
+    ${gx.a.tareas?.length ? `<span class="sub">Sus tareas</span><ul>${gx.a.tareas.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    <div class="ia">
+      <span class="sub">Pregúntale a la IA</span>
+      <form id="iaForm">
+        <textarea id="iaTexto" maxlength="800" placeholder="Ej: redacta un correo para un restaurante sin página web" required></textarea>
+        <button type="submit" id="iaBoton">Enviar a Gemini</button>
+      </form>
+      <p class="nota" id="iaEstado">Comprobando conexión…</p>
+      <div class="respuesta" id="iaRespuesta"></div>
+    </div>`;
   ficha.hidden = false; ficha.querySelector('.cerrar').onclick = () => (ficha.hidden = true);
+
+  const formIA = ficha.querySelector('#iaForm');
+  const textoIA = ficha.querySelector('#iaTexto');
+  const botonIA = ficha.querySelector('#iaBoton');
+  const estadoIA = ficha.querySelector('#iaEstado');
+  const respuestaIA = ficha.querySelector('#iaRespuesta');
+  let iaLista = false;
+
+  consultarEstadoIA().then((info) => {
+    iaLista = Boolean(info.configurado);
+    if (!iaLista) {
+      estadoIA.textContent = 'Falta configurar GEMINI_API_KEY en el servidor.';
+      botonIA.disabled = true;
+    } else {
+      estadoIA.textContent = `Gemini conectado · ${info.modelo}`;
+    }
+  });
+
+  formIA.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const mensaje = textoIA.value.trim();
+    if (!mensaje || !iaLista) return;
+    botonIA.disabled = true;
+    estadoIA.textContent = 'Pensando…';
+    respuestaIA.textContent = '';
+    try {
+      const r = await fetch('/api/agente', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          agenteId: gx.a.id,
+          nombre: gx.a.nombre,
+          puesto: gx.a.puesto,
+          departamento: dep,
+          mensaje,
+        }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || `Error ${r.status}`);
+      respuestaIA.textContent = data.respuesta;
+      estadoIA.textContent = `Respuesta de ${data.agente} · ${data.modelo}`;
+    } catch (error) {
+      estadoIA.textContent = 'No se pudo conectar: ' + error.message;
+    } finally {
+      botonIA.disabled = !iaLista;
+    }
+  });
 }
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && ficha) ficha.hidden = true; });
 let abajo = null;

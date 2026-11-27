@@ -53,6 +53,17 @@ No hay que instalar nada (`npm install` no es necesario). También vale cualquie
 
 > Abrir `index.html` con doble clic **no funciona**: el navegador bloquea los modelos 3D fuera de un servidor. Usa `npm run dev`.
 
+### Conectar la IA (opcional)
+
+La ficha de cada agente puede responder con **Google Gemini**. La clave vive solo en el servidor, nunca en el navegador.
+
+1. Saca una clave gratuita en **[aistudio.google.com/apikey](https://aistudio.google.com/apikey)**.
+2. Copia `.env.example` a `.env` y pega la clave en `GEMINI_API_KEY`.
+3. Reinicia `npm run dev` y prueba la conexión con `npm run probar-ia`.
+4. En Vercel, añade `GEMINI_API_KEY` en **Settings → Environment Variables** y vuelve a desplegar.
+
+> No pongas la clave en `oficina.config.js`, en `index.html` ni en GitHub. `.env` ya está protegido por `.gitignore`.
+
 ---
 
 ## Personalizar
