@@ -56,7 +56,7 @@ createServer(async (req, res) => {
     if (ruta === '/api/estado' && req.method === 'GET') {
       return json(res, 200, {
         configurado: Boolean(process.env.GEMINI_API_KEY),
-        modelo: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        modelo: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
       });
     }
 
